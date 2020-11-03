@@ -9,4 +9,11 @@
         android:title="SearchBar"
         app:showAsAction="always|collapseActionView"
         app:actionViewClass="android.widget.SearchView"/>
+
+    <item
+        android:id="@+id/action_account"
+        android:icon="@android:drawable/ic_input_add"
+        android:title="Account"
+        app:showAsAction="always" />
+
 </menu>
