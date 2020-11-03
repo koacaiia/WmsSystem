@@ -3,6 +3,8 @@ package com.koaca.wmssystem;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Build;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -26,16 +28,16 @@ import androidx.viewpager.widget.PagerAdapter;
 
 import java.util.ArrayList;
 
-public class PagerAdapterView extends PagerAdapter {
+public class PagerAdapterView extends PagerAdapter  {
 
     ArrayList<View> views=new ArrayList<>();
-    String[] items = {"코만푸드", "M&F", "SPC", "공차", "케이비켐", "BNI","기타","스위치코리아","서강비철", "제임스포워딩","스위치코리아"};
+
     Spinner spinner;
     RadioGroup rg;
 //    RadioButton radioButton, radioButton2,radioButton_equip, radioButton2_equip;
     String sp_des_text;
 
-    Integer[] items_outsourcing={0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15};
+
     Spinner spinner1;
     Spinner spinner2;
     Spinner spinner3;
@@ -43,12 +45,10 @@ public class PagerAdapterView extends PagerAdapter {
 //    CheckBox checkBox2;
 //    EditText editText;
 
-    String[] items_equip = {"", "FF02 (인천04마1068)", "FF04 인천04사4252", "FF20 (BR18S-00095)", "FF21 (BR18S-2-00016)", "FF25 (FBA03-1910-04218)",
-            "FK11 (FBRW25-R75C-600M)"};
+
     Spinner spinner_equip;
 
-    public String[] items_etc={"구매발주내역 입고","폐기물 수거","시설물 파손,수리","식약처,견품반출","세관검사","SPC 작업용 팔렛트 입고",
-            "공차 작업용 팔렛트 입고","기타화주팔렛트 입고"};
+
     Spinner spinner_etc;
 
     EditText editText2_editable;
@@ -56,18 +56,13 @@ public class PagerAdapterView extends PagerAdapter {
     private Context mContext=null;
     MainActivity mainActivity;
 
-
-
-
     public PagerAdapterView(){
-
     }
 
     public PagerAdapterView(MainActivity mainActivity,Context context) {
         mContext = context ;
         this.mainActivity=mainActivity;
     }
-
     @RequiresApi(api = Build.VERSION_CODES.Q)
     @NonNull
     @Override
@@ -87,7 +82,9 @@ public class PagerAdapterView extends PagerAdapter {
            v5 = inflater.inflate(R.layout.editable,container,false);
 
 
-        ArrayAdapter<String> cargoradapter = new ArrayAdapter<String>(mContext,android.R.layout.simple_spinner_item, items);
+
+
+        ArrayAdapter<String> cargoradapter = new ArrayAdapter<String>(mContext,android.R.layout.simple_spinner_item, mainActivity.items);
         cargoradapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         RadioButton radioButton = v1.findViewById(R.id.radioButton);
         RadioButton radioButton2 = v1.findViewById(R.id.radioButton2);
@@ -107,8 +104,8 @@ public class PagerAdapterView extends PagerAdapter {
                     str_radio1 += radioButton2.getText().toString();
                 }
 
-                spinner.setTag(items[position]);
-               mainActivity.textView.setText(str_radio1+"_"+items[position]);
+                spinner.setTag(mainActivity.items[position]);
+               mainActivity.textView.setText(str_radio1+"_"+mainActivity.items[position]);
             }
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
@@ -128,7 +125,7 @@ public class PagerAdapterView extends PagerAdapter {
         CheckBox checkBox2=v2.findViewById(R.id.checkBox10_outsourcing);
         EditText editText=v2.findViewById(R.id.editText2_outsourcing);
 
-        ArrayAdapter<Integer> spAdapter=new ArrayAdapter<Integer>(mContext,android.R.layout.simple_spinner_item,items_outsourcing);
+        ArrayAdapter<String> spAdapter=new ArrayAdapter<String>(mContext,android.R.layout.simple_spinner_item,mainActivity.items_outsourcing);
         spAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner1.setAdapter(spAdapter);
         spinner2.setAdapter(spAdapter);
@@ -140,8 +137,8 @@ public class PagerAdapterView extends PagerAdapter {
                 String str_check9="";
                 if(checkBox1.isChecked())
                 {str_check9+=checkBox1.getText().toString();}
-                spinner1.setTag(items_outsourcing[position]);
-                mainActivity.textView.setText(str_check9+"_"+items_outsourcing[position]);
+                spinner1.setTag(mainActivity.items_outsourcing[position]);
+                mainActivity.textView.setText(str_check9+"_"+mainActivity.items_outsourcing[position]);
             }
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
@@ -152,8 +149,8 @@ public class PagerAdapterView extends PagerAdapter {
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 String str_check10="";
                 if(checkBox2.isChecked()){str_check10+=checkBox2.getText().toString();}
-                spinner2.setTag(items_outsourcing[position]);
-                mainActivity.textView.append(","+str_check10+"_"+items_outsourcing[position]);
+                spinner2.setTag(mainActivity.items_outsourcing[position]);
+                mainActivity.textView.append(","+str_check10+"_"+mainActivity.items_outsourcing[position]);
             }
 
             @Override
@@ -166,8 +163,8 @@ public class PagerAdapterView extends PagerAdapter {
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 String ed2="";
                 ed2=editText.getText().toString();
-                spinner3.setTag(items_outsourcing[position]);
-                mainActivity.textView.append(","+ed2+"_"+items_outsourcing[position]);
+                spinner3.setTag(mainActivity.items_outsourcing[position]);
+                mainActivity.textView.append(","+ed2+"_"+mainActivity.items_outsourcing[position]);
             }
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
@@ -177,7 +174,7 @@ public class PagerAdapterView extends PagerAdapter {
         spinner_equip=v3.findViewById(R.id.spinner_equip);
             RadioButton radioButton_equip = v3.findViewById(R.id.radioButton_equip);
             RadioButton radioButton2_equip = v3.findViewById(R.id.radioButton2_equip);
-        ArrayAdapter<String> equipAdapter=new ArrayAdapter<String>(mContext,android.R.layout.simple_spinner_item,items_equip);
+        ArrayAdapter<String> equipAdapter=new ArrayAdapter<String>(mContext,android.R.layout.simple_spinner_item,mainActivity.items_equip);
         spAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner_equip.setAdapter(equipAdapter);
         spinner_equip.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -188,8 +185,8 @@ public class PagerAdapterView extends PagerAdapter {
                     str_radio += radioButton_equip.getText().toString(); }
                 if (radioButton2_equip.isChecked()) {
                     str_radio += radioButton2_equip.getText().toString(); }
-                spinner_equip.setTag(items[position]);
-                mainActivity.textView.setText(str_radio+"_"+items_equip[position]);
+                spinner_equip.setTag(mainActivity.items[position]);
+                mainActivity.textView.setText(str_radio+"_"+mainActivity.items_equip[position]);
             }
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
@@ -225,7 +222,7 @@ public class PagerAdapterView extends PagerAdapter {
 //        items_etc=list_etc.toArray(new String[0]);
 
         ArrayAdapter<String> adapter=new ArrayAdapter<String>(
-                mContext,android.R.layout.simple_spinner_item,items_etc );
+                mContext,android.R.layout.simple_spinner_item,mainActivity.items_etc );
 //        ArrayAdapter<String> menuAdapter=new ArrayAdapter<String>(this,android.R.layout.simple_spinner_dropdown_item,items_etc);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner_etc=v4.findViewById(R.id.spinner_etc);
@@ -233,8 +230,8 @@ public class PagerAdapterView extends PagerAdapter {
         spinner_etc.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                spinner_etc.setTag(items_etc[position]);
-                mainActivity.textView.setText(items_etc[position]);
+                spinner_etc.setTag(mainActivity.items_etc[position]);
+                mainActivity.textView.setText(mainActivity.items_etc[position]);
             }
 
             @Override
