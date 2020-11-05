@@ -62,24 +62,32 @@ public class MainActivity extends AppCompatActivity {
 
     SearchView searchView;
 
-    SQLiteDatabase database;
+    public SQLiteDatabase database;
 
 
     List<String> ListItems = new ArrayList<>();
 
-    String[] items = {"코만푸드", "M&F", "SPC", "공차", "케이비켐", "BNI","기타","스위치코리아","서강비철", "제임스포워딩","스위치코리아"};
-//    Integer[] items_outsourcing={0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15};
-    String[] items_outsourcing={"가","나","다","라"};
-    String[] items_equip = {"", "FF02 (인천04마1068)", "FF04 인천04사4252", "FF20 (BR18S-00095)", "FF21 (BR18S-2-00016)", "FF25 (FBA03-1910-04218)",
+    String[] items_cargo = {"코만푸드", "M&F", "SPC", "공차", "케이비켐", "BNI","기타","스위치코리아","서강비철", "제임스포워딩","스위치코리아"};
+    Integer[] items_outsourcing={0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15};
+//    Integer[] items_outsourcing={"가","나","다","라"};
+    String[] items_equip = {"FF02 (인천04마1068)", "FF04 인천04사4252", "FF20 (BR18S-00095)", "FF21 (BR18S-2-00016)", "FF25 (FBA03-1910-04218)",
             "FK11 (FBRW25-R75C-600M)"};
     String[] items_etc={"구매발주내역 입고","폐기물 수거","시설물 파손,수리","식약처,견품반출","세관검사","SPC 작업용 팔렛트 입고",
             "공차 작업용 팔렛트 입고","기타화주팔렛트 입고"};
 
     ArrayList<String> list_cargo;
-    ArrayList<String> list_ousourcing;
+    ArrayList<Integer> list_ousourcing;
     ArrayList<String> list_equip;
     ArrayList<String> list_etc;
 
+    String[] list_item;
+
+    String selectedItemsText;
+    String deletedItmesText;
+
+    int delete_int;
+
+    int selectedId = 0;
     @RequiresApi(api = Build.VERSION_CODES.Q)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -112,95 +120,117 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        int cargoCount=items.length;
-        int outsourcingCount=items_outsourcing.length;
-        int equipCount=items_equip.length;
-        int etc=items_etc.length;
-
         database=openOrCreateDatabase("WmsDataBase",MODE_PRIVATE,null);
-        String tableName="create table if not exists "+"WmsData"+"(_id integer PRIMARY KEY autoincrement,cargo text,outsourcing text,equip text,etc text)";
-        database.execSQL(tableName);
+        integratedData();
+
+       //        if(savedInstanceState !=null){
+//            String savedText=savedInstanceState.getString("editString");
+//            Toast.makeText(this, savedText, Toast.LENGTH_SHORT).show();
+//            textView.setText(savedText);
+//        }
+    }
+
+
+    public void deletedData(String items, int position){
+        String deldedData="delete from "+items+" where _id= "+position;
+        database.execSQL(deldedData);
+
+    }
+
+
+    private void integratedData() {
+        cargo_Data();
+        outsourcing_Data();
+        equp_Data();
+        etc_Data();
+    }
+
+    private void etc_Data() {
+        int etcCount=items_etc.length;
+        list_etc=new ArrayList<>();
+        String tableName_etc="create table if not exists "+"etc"+"(_id integer PRIMARY KEY autoincrement,etc text)";
+        database.execSQL(tableName_etc);
+        for(int i=0;i<etcCount;i++){
+            String etcItem=items_etc[i];
+            String etcInsert="insert or replace into "+"etc"+"(_id,etc) values ("+i+",'"+etcItem+"')";
+            database.execSQL(etcInsert);}
+
+        String queryEtc="select _id,etc from "+"etc";
+        Cursor cursor3=database.rawQuery(queryEtc,null);
+        int queryCount3=cursor3.getCount();
+        for(int i=0;i<queryCount3;i++){
+            cursor3.moveToNext();
+            String items=cursor3.getString(1);
+            list_etc.add(items);}
+        cursor3.close();
+        items_etc=list_etc.toArray(new String[0]);
+    }
+
+    private void equp_Data() {
+        int equipCount=items_equip.length;
+        list_equip=new ArrayList<>();
+        String tableName_equip="create table if not exists "+"equip"+"(_id integer PRIMARY KEY autoincrement,equip text)";
+        database.execSQL(tableName_equip);
+        for(int i=0;i<equipCount;i++){
+            String equipItem=items_equip[i];
+            String equipInsert="insert or replace into "+"equip"+"(_id,equip) values ("+i+",'"+equipItem+"')";
+            database.execSQL(equipInsert);}
+
+        String queryEquip="select _id,equip from "+"equip";
+        Cursor cursor2=database.rawQuery(queryEquip,null);
+        int queryCount2=cursor2.getCount();
+        for(int i=0;i<queryCount2;i++){
+            cursor2.moveToNext();
+            String items=cursor2.getString(1);
+            list_equip.add(items);}
+        cursor2.close();
+        items_equip=list_equip.toArray(new String[0]);
+    }
+
+    private void outsourcing_Data() {
+        int outsourcingCount=items_outsourcing.length;
+        list_ousourcing=new ArrayList<>();
+        String tableName_outsourcing="create table if not exists "+"outsourcing"+"(_id integer PRIMARY KEY autoincrement,outsourcing integer)";
+        database.execSQL(tableName_outsourcing);
+        for(int i=0;i<outsourcingCount;i++){
+            int outsourcingItem=items_outsourcing[i];
+            String outsourcingInsert="insert or replace into "+"outsourcing"+"(_id,outsourcing) values ("+i+","+outsourcingItem+")";
+            database.execSQL(outsourcingInsert);}
+
+        String queryOutsourcing="select _id,outsourcing from "+"outsourcing";
+        Cursor cursor1=database.rawQuery(queryOutsourcing,null);
+
+        int queryCount1=cursor1.getCount();
+        for(int i=0;i<queryCount1;i++){
+            cursor1.moveToNext();
+            int items=cursor1.getInt(1);
+            list_ousourcing.add(items);}
+        cursor1.close();
+        items_outsourcing=list_ousourcing.toArray(new Integer[0]);
+    }
+
+    private void cargo_Data() {
+        int cargoCount=items_cargo.length;
+        list_cargo=new ArrayList<>();
+
+        String tableName_cargo="create table if not exists "+"cargo"+"(_id integer PRIMARY KEY autoincrement,cargo text)";
+        database.execSQL(tableName_cargo);
         for(int i=0;i<cargoCount;i++){
-            String cargoItem=items[i];
-            String outsourcingItem="";
-            String equipItem="";
-            String etcItem="";
-            if(i<outsourcingCount){
-            outsourcingItem=items_outsourcing[i];}
-            if(i<equipCount){
-            equipItem=items_equip[i];}
-            if(i<etc){
-            etcItem=items_etc[i];}
-            String cargoInsert="insert or replace into "+"WmsData"+"(_id,cargo,outsourcing,equip,etc) values ("+i+",'"+cargoItem+"','"+outsourcingItem+"','"+equipItem+"','"+etcItem+"')";
+            String cargoItem=items_cargo[i];
+            String cargoInsert="insert or replace into "+"cargo"+"(_id,cargo) values ("+i+",'"+cargoItem+"')";
             database.execSQL(cargoInsert);}
 
-
-        list_cargo=new ArrayList<>();
-        list_ousourcing=new ArrayList<>();
-        list_equip=new ArrayList<>();
-        list_etc=new ArrayList<>();
-
-        String queryCargo="select _id,cargo,outsourcing,equip,etc from "+"Wmsdata";
+        String queryCargo="select _id,cargo from "+"cargo";
         Cursor cursor=database.rawQuery(queryCargo,null);
         int queryCount=cursor.getCount();
         for(int i=0;i<queryCount;i++){
             cursor.moveToNext();
             String items=cursor.getString(1);
-            String outsourcing_items=cursor.getString(2);
-            String equip_items=cursor.getString(3);
-            String etc_items=cursor.getString(4);
-            list_cargo.add(items);
-            list_ousourcing.add(outsourcing_items);
-            list_equip.add(equip_items);
-            list_etc.add(etc_items);
-            }
-        cursor.close();
-        items=list_cargo.toArray(new String[0]);
-
-//
-//        String queryOutsourcing="select _id,outsourcing from "+"Wmsdata";
-//        Cursor cursor1=database.rawQuery(queryOutsourcing,null);
-//
-//        int queryCount1=cursor1.getCount();
-//        for(int i=0;i<queryCount1;i++){
-//            cursor1.moveToNext();
-//            String items=cursor1.getString(2);
-//            list_ousourcing.add(items);}
-//        cursor1.close();
-        items_outsourcing=list_ousourcing.toArray(new String[0]);
+            list_cargo.add(items);}
+                cursor.close();
 
 
-
-//        String queryEquip="select _id,equip from "+"Wmsdata";
-//        Cursor cursor2=database.rawQuery(queryEquip,null);
-//        int queryCount2=cursor2.getCount();
-//        for(int i=0;i<queryCount2;i++){
-//            cursor.moveToNext();
-//            String items=cursor.getString(3);
-//            list_ousourcing.add(items);}
-//        cursor2.close();
-        items_equip=list_equip.toArray(new String[0]);
-
-
-//        String queryEtc="select _id,item from "+"Wmsdata";
-//        Cursor cursor3=database.rawQuery(queryEtc,null);
-//        int queryCount3=cursor3.getCount();
-//        for(int i=0;i<queryCount3;i++){
-//            cursor.moveToNext();
-//            String items=cursor.getString(4);
-//            list_etc.add(items);}
-//        cursor3.close();
-        items_etc=list_etc.toArray(new String[0]);
-
-
-
-
-
-//        if(savedInstanceState !=null){
-//            String savedText=savedInstanceState.getString("editString");
-//            Toast.makeText(this, savedText, Toast.LENGTH_SHORT).show();
-//            textView.setText(savedText);
-//        }
+        items_cargo=list_cargo.toArray(new String[0]);
     }
 
     @Override
@@ -232,46 +262,159 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-
-                ListItems.add("입출고");
-                ListItems.add("용역관리");
-                ListItems.add("장비관리");
-                ListItems.add("기타");
-                final CharSequence[] items =  ListItems.toArray(new String[ ListItems.size()]);
+        switch(item.getItemId())
+        { case R.id.action_account:
+            final List<String> ListItems = new ArrayList<>();
+                ListItems.add("cargo");
+                ListItems.add("outsourcing");
+                ListItems.add("equip");
+                ListItems.add("etc");
+                final CharSequence[] items_add =  ListItems.toArray(new String[ ListItems.size()]);
                 final EditText editText11=new EditText(this);
                 final List SelectedItems=new ArrayList();
                 int defaultItem=0;
                 SelectedItems.add(defaultItem);
 
-
                 AlertDialog.Builder builder=new AlertDialog.Builder(this);
                 builder.setTitle("항목선택 창");
                 builder.setView(editText11);
-                builder.setSingleChoiceItems(items, defaultItem,
+                builder.setSingleChoiceItems(items_add, defaultItem,
                         new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         SelectedItems.clear();
                         SelectedItems.add(which);
+                        selectedItemsText=items_add [which].toString();
+                        Toast.makeText(MainActivity.this, selectedItemsText, Toast.LENGTH_SHORT).show();
                     }
                 });
                 builder.setPositiveButton("신규 등록", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         String dataName=editText11.getText().toString();
-                        Toast.makeText(getApplicationContext(),dataName,Toast.LENGTH_SHORT).show();
+                        String dataQuery="insert or replace into "+selectedItemsText+"("+selectedItemsText+") values ('"+dataName+"')";
+                        database.execSQL(dataQuery);
 
+                        Toast.makeText(getApplicationContext(),dataName,Toast.LENGTH_SHORT).show();
                     }
                 });
                 builder.setNegativeButton("취소",
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
-
                             }
                         });
 
                 builder.show();
+                break;
+
+            case R.id.action_account1:
+                final List<String> ListItems_delete = new ArrayList<>();
+                ListItems_delete.add("cargo");
+                ListItems_delete.add("outsourcing");
+                ListItems_delete.add("equip");
+                ListItems_delete.add("etc");
+                final CharSequence[] items_delete = ListItems_delete.toArray(new String[ ListItems_delete.size()]);
+//                final EditText editText11=new EditText(this);
+                final List SelectedItems_delete=new ArrayList();
+                int defaultItem_delete=0;
+                SelectedItems_delete.add(defaultItem_delete);
+
+                AlertDialog.Builder builder_delete=new AlertDialog.Builder(this);
+                builder_delete.setTitle("항목선택 창");
+//                builder_delete.setView(editText11);
+                builder_delete.setSingleChoiceItems(items_delete, defaultItem_delete,
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                delete_int=which;
+
+                            }
+                        });
+                builder_delete.setPositiveButton("항목 수정 ", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        switch(delete_int){
+                            case 0:
+                                list_item=items_cargo;
+                                selectedItemsText="cargo";
+                                list_editedItem(list_item,selectedItemsText);
+                                break;
+                            case 1:
+                                Toast.makeText(MainActivity.this, "관리자에게 문의 바랍니다.", Toast.LENGTH_SHORT).show();
+                                break;
+                            case 2:
+                                list_item=items_equip;
+                                selectedItemsText="equip";
+                                list_editedItem(list_item,selectedItemsText);
+                                break;
+                            case 3:
+                                selectedItemsText="etc";
+                                list_editedItem(list_item,selectedItemsText);
+                                break;
+
+                        }
+                    }
+                });
+                builder_delete.setNegativeButton("취소",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                            }
+                        });
+
+                builder_delete.show();
+                break;}
                 return true;
+    }
+
+    private void list_editedItem(String[] list_item,String selectedItemsText) {
+        AlertDialog.Builder builder=new AlertDialog.Builder(this);
+//        final EditText editText_list_edit=new EditText(this);
+        final List SelectedItems=new ArrayList();
+        int defaultItem=0;
+
+        SelectedItems.add(defaultItem);
+        builder.setTitle("항목선택 창");
+//        builder.setView(editText_list_edit);
+
+         builder.setSingleChoiceItems(list_item, defaultItem,
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+//                        SelectedItems.clear();
+//                        SelectedItems.add(which);
+                        selectedId=which;
+                        deletedItmesText=list_item[which].toString();
+//                        Toast.makeText(MainActivity.this, selectedItemsText, Toast.LENGTH_SHORT).show();
+
+                    }
+                });
+        builder.setPositiveButton("항목 삭제", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                String deletedQuery="delete from "+selectedItemsText+" where "+selectedItemsText+" = "+"'"+deletedItmesText+"'";
+                database.execSQL(deletedQuery);
+
+
+            }
+        });
+        builder.setNegativeButton("취소",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                    }
+                });
+//        builder.setNeutralButton("항목 추가", new DialogInterface.OnClickListener() {
+//            @Override
+//            public void onClick(DialogInterface dialog, int which) {
+//                String dataName=editText_list_edit.getText().toString();
+//                String dataQuery="insert or replace into "+selectedItemsText+"("+selectedItemsText+") values ('"+dataName+"')";
+//                database.execSQL(dataQuery);
+//                integratedData();
+//                Toast.makeText(getApplicationContext(),dataName,Toast.LENGTH_SHORT).show();
+//
+//            }
+//        });
+
+        builder.show();
     }
 
     class ActionListener implements SearchView.OnQueryTextListener{
@@ -279,8 +422,6 @@ public class MainActivity extends AppCompatActivity {
         //돋보기 버튼 입력
         @Override
         public boolean onQueryTextSubmit(String query) {
-
-
 
           String etcRecord="insert into "+"Etc"+"(item) values ('"+query+"')";
             database.execSQL(etcRecord);
@@ -321,4 +462,5 @@ public class MainActivity extends AppCompatActivity {
         captureProcess=new CaptureProcess(this,surfaceHolder);
         captureProcess.preView();
     }
+
 }

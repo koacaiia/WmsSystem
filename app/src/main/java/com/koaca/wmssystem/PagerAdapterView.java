@@ -28,6 +28,8 @@ import androidx.viewpager.widget.PagerAdapter;
 
 import java.util.ArrayList;
 
+import static android.content.Context.MODE_PRIVATE;
+
 public class PagerAdapterView extends PagerAdapter  {
 
     ArrayList<View> views=new ArrayList<>();
@@ -47,14 +49,12 @@ public class PagerAdapterView extends PagerAdapter  {
 
 
     Spinner spinner_equip;
-
-
     Spinner spinner_etc;
-
     EditText editText2_editable;
-
     private Context mContext=null;
     MainActivity mainActivity;
+
+    SQLiteDatabase database1;
 
     public PagerAdapterView(){
     }
@@ -84,7 +84,7 @@ public class PagerAdapterView extends PagerAdapter  {
 
 
 
-        ArrayAdapter<String> cargoradapter = new ArrayAdapter<String>(mContext,android.R.layout.simple_spinner_item, mainActivity.items);
+        ArrayAdapter<String> cargoradapter = new ArrayAdapter<String>(mContext,android.R.layout.simple_spinner_item, mainActivity.items_cargo);
         cargoradapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         RadioButton radioButton = v1.findViewById(R.id.radioButton);
         RadioButton radioButton2 = v1.findViewById(R.id.radioButton2);
@@ -104,16 +104,23 @@ public class PagerAdapterView extends PagerAdapter  {
                     str_radio1 += radioButton2.getText().toString();
                 }
 
-                spinner.setTag(mainActivity.items[position]);
-               mainActivity.textView.setText(str_radio1+"_"+mainActivity.items[position]);
+                spinner.setTag(mainActivity.items_cargo[position]);
+
+               mainActivity.textView.setText(str_radio1+"_"+mainActivity.items_cargo[position]);
+                Log.d("koaca1","2");
             }
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
                 spinner.setTag(""); }
         });
-        spinner.setOnLongClickListener(new View.OnLongClickListener() {
+        spinner.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
-            public boolean onLongClick(View v) {
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+               String items="cargo";
+//               String itemName=mainActivity.items_cargo[position];
+//               mainActivity.deletedData(items,position);
+                Log.d("koaca1","1");
+
                 return true;
             }
         });
@@ -125,7 +132,7 @@ public class PagerAdapterView extends PagerAdapter  {
         CheckBox checkBox2=v2.findViewById(R.id.checkBox10_outsourcing);
         EditText editText=v2.findViewById(R.id.editText2_outsourcing);
 
-        ArrayAdapter<String> spAdapter=new ArrayAdapter<String>(mContext,android.R.layout.simple_spinner_item,mainActivity.items_outsourcing);
+        ArrayAdapter<Integer> spAdapter=new ArrayAdapter<Integer>(mContext,android.R.layout.simple_spinner_item,mainActivity.items_outsourcing);
         spAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner1.setAdapter(spAdapter);
         spinner2.setAdapter(spAdapter);
@@ -185,7 +192,7 @@ public class PagerAdapterView extends PagerAdapter  {
                     str_radio += radioButton_equip.getText().toString(); }
                 if (radioButton2_equip.isChecked()) {
                     str_radio += radioButton2_equip.getText().toString(); }
-                spinner_equip.setTag(mainActivity.items[position]);
+                spinner_equip.setTag(mainActivity.items_equip[position]);
                 mainActivity.textView.setText(str_radio+"_"+mainActivity.items_equip[position]);
             }
             @Override
@@ -194,32 +201,6 @@ public class PagerAdapterView extends PagerAdapter  {
             }
         });
 
-        //etc
-
-//        database=openOrCreateDatabase("SpinnerDataBase",MODE_PRIVATE,null);
-//        String tablenameSql="create table if not exists "+"Etc"+"(_id integer PRIMARY KEY autoincrement,item text)";
-//        database.execSQL(tablenameSql);
-//        int etcDataCount=items_etc.length;
-//        for(int i=0;i<etcDataCount;i++){
-//            String dataItem=items_etc[i];
-//            String etcRecord="insert or replace into "+"Etc"+"(_id,item) values ("+i+",'"+dataItem+"')";
-//            database.execSQL(etcRecord);
-//        }
-//        String queryItem="select _id,item from "+"Etc";
-//        Cursor cursor=database.rawQuery(queryItem,null);
-//        int queryCount=cursor.getCount();
-//
-//        list_etc=new ArrayList<>();
-//        for(int i=0;i<queryCount;i++){
-//            cursor.moveToNext();
-//            String item=cursor.getString(1);
-//            list_etc.add(item);
-//               }
-//        cursor.close();
-
-//        ArrayList<String> list_etc=new ArrayList<>( Arrays.asList(items_etc));
-//
-//        items_etc=list_etc.toArray(new String[0]);
 
         ArrayAdapter<String> adapter=new ArrayAdapter<String>(
                 mContext,android.R.layout.simple_spinner_item,mainActivity.items_etc );
@@ -233,7 +214,6 @@ public class PagerAdapterView extends PagerAdapter  {
                 spinner_etc.setTag(mainActivity.items_etc[position]);
                 mainActivity.textView.setText(mainActivity.items_etc[position]);
             }
-
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
                 spinner_etc.setTag("");
@@ -241,7 +221,6 @@ public class PagerAdapterView extends PagerAdapter  {
         spinner_etc.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-
                 return true;
             }
         });
@@ -257,7 +236,6 @@ public class PagerAdapterView extends PagerAdapter  {
                 return true;
             }
         });
-
             views.add(v1);
             views.add(v2);
             views.add(v3);
